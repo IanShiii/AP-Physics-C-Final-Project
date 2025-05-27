@@ -1,7 +1,7 @@
 import math
 from vpython import *
 
-dt = 0.002
+dt = 0.003
 steps_per_second = 100
 
 scene = canvas(width=600, height=600)
@@ -123,11 +123,11 @@ mass_linear_velocity = vector(0,0,0)
 def convert_mass_angular_velocity_to_linear_velocity() -> None:
     global mass_linear_velocity
     if (is_mass_pivoting_about_pivot_1()):
-        velocity_magnitude = angular_velocity_to_pivot_1 * starting_rope_length
-        mass_linear_velocity = vector(velocity_magnitude * sin(angle_to_pivot_1), velocity_magnitude * cos(angle_to_pivot_1), 0)
+        ccw_velocity_magnitude = angular_velocity_to_pivot_1 * starting_rope_length
+        mass_linear_velocity = vector(ccw_velocity_magnitude * -sin(angle_to_pivot_1), ccw_velocity_magnitude * cos(angle_to_pivot_1), 0)
     else:
-        velocity_magnitude = angular_velocity_to_pivot_2 * get_effective_rope_length()
-        mass_linear_velocity = vector(velocity_magnitude * sin(angle_to_pivot_2), velocity_magnitude * cos(angle_to_pivot_2), 0)
+        ccw_velocity_magnitude = angular_velocity_to_pivot_2 * get_effective_rope_length()
+        mass_linear_velocity = vector(ccw_velocity_magnitude * -sin(angle_to_pivot_2), ccw_velocity_magnitude * cos(angle_to_pivot_2), 0)
 
 def update_mass_velocity_free_fall() -> None:
     mass_linear_velocity.y -= (9.81 * dt)
@@ -142,10 +142,10 @@ mass_was_last_pivoting_around_pivot_1 = True
 def has_mass_reached_end_of_string() -> bool:
     if (mass_was_last_pivoting_around_pivot_1):
         distance_to_pivot_1 = (mass.pos - pivot_1.pos).mag
-        return distance_to_pivot_1 >= last_effective_rope_length_before_going_slack
+        return distance_to_pivot_1 > last_effective_rope_length_before_going_slack * 1
     else:
         distance_to_pivot_2 = (mass.pos - pivot_2.pos).mag
-        return distance_to_pivot_2 >= last_effective_rope_length_before_going_slack
+        return distance_to_pivot_2 > last_effective_rope_length_before_going_slack * 1
 
 simulation_ended = False
 
