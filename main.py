@@ -1,4 +1,5 @@
 import math
+from turtle import pos
 from vpython import *
 
 dt = 0.003
@@ -9,7 +10,10 @@ scene = canvas(width=600, height=600)
 starting_rope_length = 1.5
 initial_angle = 0
 initial_angular_velocity = 0
-distance_between_pivot_and_point = 0.75
+distance_between_pivot_and_point = 1.0
+
+radius_of_pivot_2 = 0.03
+radius_of_mass = 0.03
 
 def find_position_of_mass_about_pivot_1(angle: float) -> vector:
     pivot_1_to_mass = vector(cos(angle), sin(angle), 0) * starting_rope_length
@@ -20,8 +24,8 @@ def find_position_of_mass_about_pivot_2(angle: float, effective_rope_length: flo
     return pivot_2.pos + pivot_2_to_mass
 
 pivot_1 = box(pos=vector(0,0.9,0), length=0.03, height=0.03, width=0.03, color=color.blue)
-mass = sphere(pos=find_position_of_mass_about_pivot_1(initial_angle), radius=0.03, color=color.blue)
-pivot_2 = sphere(pos=(pivot_1.pos-vector(0, distance_between_pivot_and_point, 0)), radius = 0.03, color=color.blue)
+mass = sphere(pos=find_position_of_mass_about_pivot_1(initial_angle), radius=radius_of_mass, color=color.blue)
+pivot_2 = sphere(pos=(pivot_1.pos-vector(0, distance_between_pivot_and_point, 0)), radius = radius_of_pivot_2, color=color.blue)
 string_about_pivot_1 = box(pos = (pivot_1.pos + mass.pos)/2, width=0.005, height=0.005, axis=(mass.pos - pivot_1.pos))
 string_about_pivot_2 = box(pos = (pivot_2.pos + mass.pos)/2, width=0.005, height=0.005, axis=vector(0,0,0))
 
@@ -146,12 +150,17 @@ def has_mass_reached_end_of_string() -> bool:
     else:
         distance_to_pivot_2 = (mass.pos - pivot_2.pos).mag
         return distance_to_pivot_2 > last_effective_rope_length_before_going_slack * 1
+    
+def is_mass_touching_pivot_2() -> bool:
+    return (mass.pos - pivot_2.pos).mag <= (radius_of_mass + radius_of_pivot_2)
 
 simulation_ended = False
 
 while True:
     rate(steps_per_second)
     if (not simulation_ended):   
+        if (is_mass_touching_pivot_2()):
+            simulation_ended = True
         if (not rope_has_become_slack):
             update_mass_angular_velocity()
             update_mass_angle()
