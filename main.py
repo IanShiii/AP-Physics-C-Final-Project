@@ -88,11 +88,85 @@ def update_string_about_pivot_2() -> None:
     else:
         string_about_pivot_2.axis = (mass.pos - pivot_2.pos)
 
+def get_minimum_magnitude_angular_velocity_required_to_keep_string_taut_top_half() -> float:
+    global angle_to_pivot_1
+    global angle_to_pivot_2
+    if (is_mass_pivoting_about_pivot_1()):
+        magnitude_perpendicular_accel_from_gravity = abs(9.81 * sin(angle_to_pivot_1))
+        minimum_linear_velocity = sqrt(magnitude_perpendicular_accel_from_gravity * starting_rope_length)
+        minimum_angular_velocity = minimum_linear_velocity / starting_rope_length
+        return minimum_angular_velocity
+    else:
+        magnitude_perpendicular_accel_from_gravity = abs(9.81 * sin(angle_to_pivot_2))
+        minimum_linear_velocity = sqrt(magnitude_perpendicular_accel_from_gravity * get_effective_rope_length())
+        minimum_angular_velocity = minimum_linear_velocity / get_effective_rope_length()
+        return minimum_angular_velocity
+
+def is_rope_taut() -> bool:
+    if (is_mass_pivoting_about_pivot_1()):
+        if (sin(angle_to_pivot_1) <=0):
+            return True
+        else:
+            return abs(angular_velocity_to_pivot_1) >= get_minimum_magnitude_angular_velocity_required_to_keep_string_taut_top_half()
+    else:
+        if (sin(angle_to_pivot_2) <=0):
+            return True
+        else:
+            return abs(angular_velocity_to_pivot_2) >= get_minimum_magnitude_angular_velocity_required_to_keep_string_taut_top_half()
+
+def hide_strings() -> None:
+    string_about_pivot_1.axis = vector(0,0,0)
+    string_about_pivot_2.axis = vector(0,0,0)
+
+mass_linear_velocity = vector(0,0,0)
+
+def convert_mass_angular_velocity_to_linear_velocity() -> None:
+    global mass_linear_velocity
+    if (is_mass_pivoting_about_pivot_1()):
+        velocity_magnitude = angular_velocity_to_pivot_1 * starting_rope_length
+        mass_linear_velocity = vector(velocity_magnitude * sin(angle_to_pivot_1), velocity_magnitude * cos(angle_to_pivot_1), 0)
+    else:
+        velocity_magnitude = angular_velocity_to_pivot_2 * get_effective_rope_length()
+        mass_linear_velocity = vector(velocity_magnitude * sin(angle_to_pivot_2), velocity_magnitude * cos(angle_to_pivot_2), 0)
+
+def update_mass_velocity_free_fall() -> None:
+    mass_linear_velocity.y -= (9.81 * dt)
+
+def update_mass_position_free_fall() -> None:
+    mass.pos += (mass_linear_velocity * dt)
+
+rope_has_become_slack = False
+last_effective_rope_length_before_going_slack = 0
+mass_was_last_pivoting_around_pivot_1 = True
+
+def has_mass_reached_end_of_string() -> bool:
+    if (mass_was_last_pivoting_around_pivot_1):
+        distance_to_pivot_1 = (mass.pos - pivot_1.pos).mag
+        return distance_to_pivot_1 >= last_effective_rope_length_before_going_slack
+    else:
+        distance_to_pivot_2 = (mass.pos - pivot_2.pos).mag
+        return distance_to_pivot_2 >= last_effective_rope_length_before_going_slack
+
+simulation_ended = False
+
 while True:
     rate(steps_per_second)
-    if (get_effective_rope_length() > 0.05):
-        update_mass_angular_velocity()
-        update_mass_angle()
-        update_mass_position()
-        update_string_about_pivot_1()
-        update_string_about_pivot_2()    
+    if (not simulation_ended):   
+        if (not rope_has_become_slack):
+            update_mass_angular_velocity()
+            update_mass_angle()
+            update_mass_position()
+            update_string_about_pivot_1()
+            update_string_about_pivot_2()
+            if (not is_rope_taut()):
+                rope_has_become_slack = True
+                last_effective_rope_length_before_going_slack = get_effective_rope_length()
+                if (not is_mass_pivoting_about_pivot_1()):
+                    mass_was_last_pivoting_around_pivot_1 = False
+                hide_strings()
+                convert_mass_angular_velocity_to_linear_velocity()
+        else:
+            update_mass_velocity_free_fall()
+            update_mass_position_free_fall()
+            if (has_mass_reached_end_of_string()):
+                simulation_ended = True
