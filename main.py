@@ -196,11 +196,17 @@ def is_mass_touching_pivot_2() -> bool:
 simulation_started = False
 simulation_ended = False
 
-def start_simulation(evt) -> None:
-    global simulation_started
-    simulation_started = True
+rope_is_too_short_error = wtext(text='\n')
 
-start_button = button(bind=start_simulation, text='Start Simulation')
+def attempt_start_simulation() -> None:
+    global simulation_started
+    if (starting_rope_length <= distance_between_pivot_and_point):
+        rope_is_too_short_error.text = 'ROPE IS TOO SHORT (Must be longer than the distance between the two pivots)\n'
+    else:
+        simulation_started = True
+        rope_is_too_short_error.text = '\n'
+
+start_button = button(bind=lambda : attempt_start_simulation(), text='Start Simulation')
 
 while True:
     rate(steps_per_second)
