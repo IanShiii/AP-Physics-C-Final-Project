@@ -1,11 +1,15 @@
 import math
-from turtle import pos
 from vpython import *
 
 dt = 0.003
 steps_per_second = 100
 
-scene = canvas(width=600, height=600)
+scene = canvas(width=1000, height=600)
+scene.userzoom = False
+scene.userspin = False
+scene.userpan = False
+scene.autoscale = False
+scene.camera.pos = vector(0,0,-12)
 
 starting_rope_length = 1.5
 distance_between_pivot_and_point = 1.0
@@ -41,8 +45,8 @@ def update_text():
     distance_between_pivot_and_point_slider_text.text = 'Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n'
     initial_angle_slider_text.text = 'Initial Angle: ' + str(initial_angle_slider.value) + '\n'
 
-radius_of_pivot_2 = 0.03
-radius_of_mass = 0.03
+radius_of_pivot_2 = 0.05
+radius_of_mass = 0.05
 
 def find_position_of_mass_about_pivot_1() -> vector:
     pivot_1_to_mass = vector(cos(angle_to_pivot_1), sin(angle_to_pivot_1), 0) * starting_rope_length
