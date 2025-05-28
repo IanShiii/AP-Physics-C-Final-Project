@@ -52,11 +52,11 @@ def find_position_of_mass_about_pivot_2(effective_rope_length: float) -> vector:
     pivot_2_to_mass = vector(cos(angle_to_pivot_2), sin(angle_to_pivot_2), 0) * effective_rope_length
     return pivot_2.pos + pivot_2_to_mass
 
-pivot_1 = box(pos=vector(0,0.9,0), length=0.03, height=0.03, width=0.03, color=color.blue)
-mass = sphere(pos=find_position_of_mass_about_pivot_1(), radius=radius_of_mass, color=color.blue)
-pivot_2 = sphere(pos=(pivot_1.pos-vector(0, distance_between_pivot_and_point, 0)), radius = radius_of_pivot_2, color=color.blue)
-string_about_pivot_1 = box(pos = (pivot_1.pos + mass.pos)/2, width=0.005, height=0.005, axis=(mass.pos - pivot_1.pos))
-string_about_pivot_2 = box(pos = (pivot_2.pos + mass.pos)/2, width=0.005, height=0.005, axis=vector(0,0,0))
+pivot_1 = box(pos=vector(0,0.9,0), length=0.1, height=0.1, width=0.1, texture=textures.metal)
+mass = sphere(pos=find_position_of_mass_about_pivot_1(), radius=radius_of_mass, texture=textures.wood)
+pivot_2 = sphere(pos=(pivot_1.pos-vector(0, distance_between_pivot_and_point, 0)), radius = radius_of_pivot_2, texture=textures.metal)
+string_about_pivot_1 = box(pos = (pivot_1.pos + mass.pos)/2, width=0.005, height=0.005, axis=(mass.pos - pivot_1.pos), texture=textures.rough)
+string_about_pivot_2 = box(pos = (pivot_2.pos + mass.pos)/2, width=0.005, height=0.005, axis=vector(0,0,0), texture=textures.rough)
 
 def convert_pivot_1_angular_velocity_to_pivot_2_angular_velocity():
     global angular_velocity_to_pivot_2
