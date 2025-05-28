@@ -8,35 +8,59 @@ steps_per_second = 100
 scene = canvas(width=600, height=600)
 
 starting_rope_length = 1.5
-initial_angle = 0
-initial_angular_velocity = 0
 distance_between_pivot_and_point = 1.0
+
+angle_to_pivot_1 = 0
+angular_velocity_to_pivot_1 = 0
+angle_to_pivot_2 = -math.pi/2
+angular_velocity_to_pivot_2 = 0
+
+def set_starting_rope_length(length: float) -> None:
+    global starting_rope_length
+    starting_rope_length = length
+
+def set_distance_between_pivot_and_point(distance: float) -> None:
+    global distance_between_pivot_and_point
+    distance_between_pivot_and_point = distance
+
+def set_initial_angle(angle: float) -> None:
+    global angle_to_pivot_1
+    angle_to_pivot_1 = angle
+
+starting_rope_length_slider = slider(bind=lambda : set_starting_rope_length(starting_rope_length_slider.value), max=2, min=0.5, step=0.1, value=1.5)
+starting_rope_length_slider_text = wtext(text='Rope Length: ' + str(starting_rope_length_slider.value) + '\n')
+
+distance_between_pivot_and_point_slider = slider(bind=lambda : set_distance_between_pivot_and_point(distance_between_pivot_and_point_slider.value), max=1.5, min=0.5, step=0.05, value=1)
+distance_between_pivot_and_point_slider_text = wtext(text='Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n')
+
+initial_angle_slider = slider(bind=lambda : set_initial_angle(initial_angle_slider.value), max=0, min=-math.pi/4, step=0.05, value=0)
+initial_angle_slider_text = wtext(text='Initial Angle: ' + str(initial_angle_slider.value) + '\n')
+
+def update_text():
+    starting_rope_length_slider_text.text = 'Rope Length: ' + str(starting_rope_length_slider.value) + '\n'
+    distance_between_pivot_and_point_slider_text.text = 'Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n'
+    initial_angle_slider_text.text = 'Initial Angle: ' + str(initial_angle_slider.value) + '\n'
 
 radius_of_pivot_2 = 0.03
 radius_of_mass = 0.03
 
-def find_position_of_mass_about_pivot_1(angle: float) -> vector:
-    pivot_1_to_mass = vector(cos(angle), sin(angle), 0) * starting_rope_length
+def find_position_of_mass_about_pivot_1() -> vector:
+    pivot_1_to_mass = vector(cos(angle_to_pivot_1), sin(angle_to_pivot_1), 0) * starting_rope_length
     return pivot_1.pos + pivot_1_to_mass
 
-def find_position_of_mass_about_pivot_2(angle: float, effective_rope_length: float) -> vector:
-    pivot_2_to_mass = vector(cos(angle), sin(angle), 0) * effective_rope_length
+def find_position_of_mass_about_pivot_2(effective_rope_length: float) -> vector:
+    pivot_2_to_mass = vector(cos(angle_to_pivot_2), sin(angle_to_pivot_2), 0) * effective_rope_length
     return pivot_2.pos + pivot_2_to_mass
 
 pivot_1 = box(pos=vector(0,0.9,0), length=0.03, height=0.03, width=0.03, color=color.blue)
-mass = sphere(pos=find_position_of_mass_about_pivot_1(initial_angle), radius=radius_of_mass, color=color.blue)
+mass = sphere(pos=find_position_of_mass_about_pivot_1(), radius=radius_of_mass, color=color.blue)
 pivot_2 = sphere(pos=(pivot_1.pos-vector(0, distance_between_pivot_and_point, 0)), radius = radius_of_pivot_2, color=color.blue)
 string_about_pivot_1 = box(pos = (pivot_1.pos + mass.pos)/2, width=0.005, height=0.005, axis=(mass.pos - pivot_1.pos))
 string_about_pivot_2 = box(pos = (pivot_2.pos + mass.pos)/2, width=0.005, height=0.005, axis=vector(0,0,0))
 
-angle_to_pivot_1 = initial_angle
-angular_velocity_to_pivot_1 = initial_angular_velocity
-angle_to_pivot_2 = -math.pi/2
-angular_velocity_to_pivot_2 = 0
-
 def convert_pivot_1_angular_velocity_to_pivot_2_angular_velocity():
     global angular_velocity_to_pivot_2
-    angular_velocity_to_pivot_2 = ((starting_rope_length / (starting_rope_length - distance_between_pivot_and_point)) ** 2) * angular_velocity_to_pivot_1
+    angular_velocity_to_pivot_2 = angular_velocity_to_pivot_1 * starting_rope_length / (starting_rope_length - distance_between_pivot_and_point)
 
 def is_mass_pivoting_about_pivot_1() -> bool:
     return angle_to_pivot_1 > -math.pi/2
@@ -73,9 +97,9 @@ def update_mass_angle() -> None:
 
 def update_mass_position() -> None:
     if (is_mass_pivoting_about_pivot_1()):
-        mass.pos = find_position_of_mass_about_pivot_1(angle=angle_to_pivot_1)
+        mass.pos = find_position_of_mass_about_pivot_1()
     else:
-        mass.pos = find_position_of_mass_about_pivot_2(angle=angle_to_pivot_2, effective_rope_length=get_effective_rope_length())
+        mass.pos = find_position_of_mass_about_pivot_2(effective_rope_length=get_effective_rope_length())
 
 def update_string_about_pivot_1() -> None:
     if (is_mass_pivoting_about_pivot_1()):
@@ -91,6 +115,9 @@ def update_string_about_pivot_2() -> None:
         string_about_pivot_2.axis = vector(0,0,0)
     else:
         string_about_pivot_2.axis = (mass.pos - pivot_2.pos)
+
+def update_pivot_2() -> None:
+    pivot_2.pos = pivot_1.pos-vector(0, distance_between_pivot_and_point, 0)
 
 def get_minimum_magnitude_angular_velocity_required_to_keep_string_taut_top_half() -> float:
     global angle_to_pivot_1
@@ -154,13 +181,19 @@ def has_mass_reached_end_of_string() -> bool:
 def is_mass_touching_pivot_2() -> bool:
     return (mass.pos - pivot_2.pos).mag <= (radius_of_mass + radius_of_pivot_2)
 
+simulation_started = False
 simulation_ended = False
+
+def start_simulation(evt) -> None:
+    global simulation_started
+    simulation_started = True
+
+start_button = button(bind=start_simulation, text='Start Simulation')
 
 while True:
     rate(steps_per_second)
-    if (not simulation_ended):   
-        if (is_mass_touching_pivot_2()):
-            simulation_ended = True
+    update_text()
+    if (simulation_started and not simulation_ended):
         if (not rope_has_become_slack):
             update_mass_angular_velocity()
             update_mass_angle()
@@ -174,8 +207,15 @@ while True:
                     mass_was_last_pivoting_around_pivot_1 = False
                 hide_strings()
                 convert_mass_angular_velocity_to_linear_velocity()
+            elif (is_mass_touching_pivot_2()):
+                simulation_ended = True
         else:
             update_mass_velocity_free_fall()
             update_mass_position_free_fall()
             if (has_mass_reached_end_of_string()):
                 simulation_ended = True
+    elif (not simulation_started and not simulation_ended):
+        update_string_about_pivot_1()
+        update_string_about_pivot_2()
+        update_mass_position()
+        update_pivot_2()
