@@ -4,7 +4,7 @@ from vpython import *
 dt = 0.003
 steps_per_second = 100
 
-scene = canvas(width=1000, height=600)
+scene = canvas(width=1000, height=500)
 scene.userzoom = False
 scene.userspin = False
 scene.userpan = False
@@ -31,6 +31,10 @@ def set_initial_angle(angle: float) -> None:
     global angle_to_pivot_1
     angle_to_pivot_1 = angle
 
+def set_initial_angular_velocity(angular_velocity: float) -> None:
+    global angular_velocity_to_pivot_1
+    angular_velocity_to_pivot_1 = angular_velocity
+
 starting_rope_length_slider = slider(bind=lambda : set_starting_rope_length(starting_rope_length_slider.value), max=2, min=0.5, step=0.1, value=1.5)
 starting_rope_length_slider_text = wtext(text='Rope Length: ' + str(starting_rope_length_slider.value) + '\n')
 
@@ -40,10 +44,14 @@ distance_between_pivot_and_point_slider_text = wtext(text='Distance Between Two 
 initial_angle_slider = slider(bind=lambda : set_initial_angle(initial_angle_slider.value), max=0, min=-math.pi/4, step=0.05, value=0)
 initial_angle_slider_text = wtext(text='Initial Angle: ' + str(initial_angle_slider.value) + '\n')
 
+initial_angular_velocity_slider = slider(bind=lambda : set_initial_angular_velocity(-initial_angular_velocity_slider.value), max=3, min=0, step=0.01, value=0)
+initial_angular_velocity_slider_text = wtext(text='Initial Angular Velocity: ' + str(initial_angular_velocity_slider.value) + '\n\n')
+
 def update_text():
     starting_rope_length_slider_text.text = 'Rope Length: ' + str(starting_rope_length_slider.value) + '\n'
     distance_between_pivot_and_point_slider_text.text = 'Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n'
     initial_angle_slider_text.text = 'Initial Angle: ' + str(initial_angle_slider.value) + '\n'
+    initial_angular_velocity_slider_text.text = 'Initial Angular Velocity: ' + str(initial_angular_velocity_slider.value) + '\n\n'
 
 radius_of_pivot_2 = 0.05
 radius_of_mass = 0.05
