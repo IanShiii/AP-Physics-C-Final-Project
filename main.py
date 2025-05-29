@@ -42,23 +42,23 @@ def set_initial_angular_velocity(angular_velocity: float) -> None:
     if (not simulation_started):
         angular_velocity_to_pivot_1 = angular_velocity
 
-starting_rope_length_slider = slider(bind=lambda : set_starting_rope_length(starting_rope_length_slider.value), max=2, min=0.5, step=0.1, value=1.5)
+starting_rope_length_slider = slider(bind=lambda : set_starting_rope_length(starting_rope_length_slider.value), max=2, min=0.5, step=0.05, value=1.5)
 starting_rope_length_slider_text = wtext(text='Rope Length: ' + str(starting_rope_length_slider.value) + '\n')
 
-distance_between_pivot_and_point_slider = slider(bind=lambda : set_distance_between_pivot_and_point(distance_between_pivot_and_point_slider.value), max=1.5, min=0.5, step=0.05, value=1)
+distance_between_pivot_and_point_slider = slider(bind=lambda : set_distance_between_pivot_and_point(distance_between_pivot_and_point_slider.value), max=2.0, min=0.5, step=0.05, value=1)
 distance_between_pivot_and_point_slider_text = wtext(text='Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n')
 
 initial_angle_slider = slider(bind=lambda : set_initial_angle(initial_angle_slider.value), max=0, min=-math.pi/4, step=0.05, value=0)
-initial_angle_slider_text = wtext(text='Initial Angle: ' + str(initial_angle_slider.value) + '\n')
+initial_angle_slider_text = wtext(text='Initial Angle\n')
 
 initial_angular_velocity_slider = slider(bind=lambda : set_initial_angular_velocity(-initial_angular_velocity_slider.value), max=3, min=0, step=0.01, value=0)
-initial_angular_velocity_slider_text = wtext(text='Initial Angular Velocity: ' + str(initial_angular_velocity_slider.value) + '\n\n')
+initial_angular_velocity_slider_text = wtext(text='Initial Angular Velocity\n\n')
 
 def update_text():
     starting_rope_length_slider_text.text = 'Rope Length: ' + str(starting_rope_length_slider.value) + '\n'
     distance_between_pivot_and_point_slider_text.text = 'Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n'
-    initial_angle_slider_text.text = 'Initial Angle: ' + str(initial_angle_slider.value) + '\n'
-    initial_angular_velocity_slider_text.text = 'Initial Angular Velocity: ' + str(initial_angular_velocity_slider.value) + '\n\n'
+    initial_angle_slider_text.text = 'Initial Angle\n'
+    initial_angular_velocity_slider_text.text = 'Initial Angular Velocity\n\n'
 
 radius_of_pivot_2 = 0.05
 radius_of_mass = 0.05
@@ -219,7 +219,7 @@ def reset() -> None:
     global rope_has_become_slack, last_effective_rope_length_before_going_slack
     global mass_was_last_pivoting_around_pivot_1
     global rope_is_too_short_error
-    
+
     simulation_started = False
     simulation_ended = False
 
