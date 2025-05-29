@@ -11,6 +11,9 @@ scene.userpan = False
 scene.autoscale = False
 scene.camera.pos = vector(0,0,-12)
 
+simulation_started = False
+simulation_ended = False
+
 starting_rope_length = 1.5
 distance_between_pivot_and_point = 1.0
 
@@ -21,19 +24,23 @@ angular_velocity_to_pivot_2 = 0
 
 def set_starting_rope_length(length: float) -> None:
     global starting_rope_length
-    starting_rope_length = length
+    if (not simulation_started):
+        starting_rope_length = length
 
 def set_distance_between_pivot_and_point(distance: float) -> None:
     global distance_between_pivot_and_point
-    distance_between_pivot_and_point = distance
+    if (not simulation_started):
+        distance_between_pivot_and_point = distance
 
 def set_initial_angle(angle: float) -> None:
     global angle_to_pivot_1
-    angle_to_pivot_1 = angle
+    if (not simulation_started):
+        angle_to_pivot_1 = angle
 
 def set_initial_angular_velocity(angular_velocity: float) -> None:
     global angular_velocity_to_pivot_1
-    angular_velocity_to_pivot_1 = angular_velocity
+    if (not simulation_started):
+        angular_velocity_to_pivot_1 = angular_velocity
 
 starting_rope_length_slider = slider(bind=lambda : set_starting_rope_length(starting_rope_length_slider.value), max=2, min=0.5, step=0.1, value=1.5)
 starting_rope_length_slider_text = wtext(text='Rope Length: ' + str(starting_rope_length_slider.value) + '\n')
@@ -193,9 +200,6 @@ def has_mass_reached_end_of_string() -> bool:
 def is_mass_touching_pivot_2() -> bool:
     return (mass.pos - pivot_2.pos).mag <= (radius_of_mass + radius_of_pivot_2)
 
-simulation_started = False
-simulation_ended = False
-
 rope_is_too_short_error = wtext(text='\n')
 
 def attempt_start_simulation() -> None:
@@ -207,6 +211,32 @@ def attempt_start_simulation() -> None:
         rope_is_too_short_error.text = '\n'
 
 start_button = button(bind=lambda : attempt_start_simulation(), text='Start Simulation')
+
+def reset() -> None:
+    global simulation_started, simulation_ended
+    global angle_to_pivot_1, angular_velocity_to_pivot_1, angle_to_pivot_2, angular_velocity_to_pivot_2
+    global mass_linear_velocity
+    global rope_has_become_slack, last_effective_rope_length_before_going_slack
+    global mass_was_last_pivoting_around_pivot_1
+    global rope_is_too_short_error
+    
+    simulation_started = False
+    simulation_ended = False
+
+    angle_to_pivot_1 = initial_angle_slider.value
+    angular_velocity_to_pivot_1 = -initial_angular_velocity_slider.value
+    angle_to_pivot_2 = -math.pi/2
+    angular_velocity_to_pivot_2 = 0
+
+    mass_linear_velocity = vector(0,0,0)
+
+    rope_has_become_slack = False
+    last_effective_rope_length_before_going_slack = 0
+    mass_was_last_pivoting_around_pivot_1 = True
+
+    rope_is_too_short_error.text = '\n'
+
+reset_button = button(bind=lambda : reset(), text='Reset Simulation')
 
 while True:
     rate(steps_per_second)
