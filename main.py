@@ -50,6 +50,8 @@ def set_initial_angular_velocity(angular_velocity: float) -> None:
     if (not simulation_started):
         angular_velocity_to_pivot_1 = angular_velocity
 
+spacing = wtext(text='\n')
+
 starting_rope_length_slider = slider(bind=lambda : set_starting_rope_length(starting_rope_length_slider.value), max=2, min=0.5, step=0.05, value=1.5)
 starting_rope_length_slider_text = wtext(text='Rope Length: ' + str(starting_rope_length_slider.value) + '\n')
 
@@ -117,13 +119,22 @@ def update_mass_angular_velocity() -> None:
 def update_mass_angle() -> None:
     global angle_to_pivot_1
     global angle_to_pivot_2
+    global angular_velocity_to_pivot_2
     if (is_mass_pivoting_about_pivot_1()):
         angle_to_pivot_1 += (angular_velocity_to_pivot_1 * dt)
         if (not is_mass_pivoting_about_pivot_1()):
             convert_pivot_1_angle_to_pivot_2()
             convert_pivot_1_angular_velocity_to_pivot_2_angular_velocity()
     else:
+        initial_radius = get_effective_rope_length()
+        initial_linear_velocity = angular_velocity_to_pivot_2 * initial_radius
+
         angle_to_pivot_2 += (angular_velocity_to_pivot_2 * dt)
+
+        new_radius = get_effective_rope_length()
+        new_linear_velocity = initial_radius * initial_linear_velocity / new_radius
+        angular_velocity_to_pivot_2 = new_linear_velocity / new_radius
+        
 
 def update_mass_position() -> None:
     if (is_mass_pivoting_about_pivot_1()):
