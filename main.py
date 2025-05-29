@@ -1,4 +1,3 @@
-import math
 from vpython import *
 
 dt = 0.003
@@ -61,7 +60,7 @@ distance_between_pivot_and_point_slider_text = wtext(text='Distance Between Two 
 radius_of_second_pivot_slider = slider(bind=lambda : set_radius_of_pivot_2(radius_of_second_pivot_slider.value), max=0.15, min=0.05, step=0.01, value=radius_of_pivot_2)
 radius_of_second_pivot_slider_text = wtext(text='Radius of Second Pivot\n')
 
-initial_angle_slider = slider(bind=lambda : set_initial_angle(initial_angle_slider.value), max=0, min=-math.pi/4, step=0.05, value=0)
+initial_angle_slider = slider(bind=lambda : set_initial_angle(initial_angle_slider.value), max=0, min=-pi/4, step=0.05, value=0)
 initial_angle_slider_text = wtext(text='Initial Angle\n')
 
 initial_angular_velocity_slider = slider(bind=lambda : set_initial_angular_velocity(-initial_angular_velocity_slider.value), max=3, min=0, step=0.01, value=0)
@@ -87,21 +86,21 @@ string_about_pivot_2 = box(pos = (pivot_2.pos + mass.pos)/2, width=0.005, height
 
 def convert_pivot_1_angle_to_pivot_2():
     global angle_to_pivot_2
-    angle_to_pivot_2 = math.atan((mass.pos.y - pivot_2.pos.y) / (mass.pos.x - pivot_2.pos.x))
+    angle_to_pivot_2 = atan((mass.pos.y - pivot_2.pos.y) / (mass.pos.x - pivot_2.pos.x))
 
 def convert_pivot_1_angular_velocity_to_pivot_2_angular_velocity():
     global angular_velocity_to_pivot_2
     angular_velocity_to_pivot_2 = angular_velocity_to_pivot_1 * starting_rope_length / (starting_rope_length - distance_between_pivot_and_point)
 
 def is_mass_pivoting_about_pivot_1() -> bool:
-    return angle_to_pivot_1 > (-math.pi/2 + math.atan(radius_of_pivot_2 / distance_between_pivot_and_point))
+    return angle_to_pivot_1 > (-pi/2 + atan(radius_of_pivot_2 / distance_between_pivot_and_point))
 
 def get_effective_rope_length() -> float:
     if (is_mass_pivoting_about_pivot_1()):
         return starting_rope_length
     else:
-        circumference_of_point = pivot_2.radius * 2 * math.pi
-        rotations_around_point = abs((angle_to_pivot_2 + math.pi/2) / (2 * math.pi))
+        circumference_of_point = pivot_2.radius * 2 * pi
+        rotations_around_point = abs((angle_to_pivot_2 + pi/2) / (2 * pi))
         return starting_rope_length - (circumference_of_point * rotations_around_point) - distance_between_pivot_and_point
     
 def update_mass_angular_velocity() -> None:
@@ -147,14 +146,14 @@ def update_string_about_pivot_1() -> None:
         string_about_pivot_1.pos = (pivot_1.pos + mass.pos)/2
         string_about_pivot_1.axis = (mass.pos - pivot_1.pos)
     else:
-        rope_angle_from_horizontal = -math.pi/2 + math.atan(radius_of_pivot_2 / distance_between_pivot_and_point)
-        length_of_pivot_1_string = math.sqrt(distance_between_pivot_and_point ** 2 + pivot_2.radius ** 2)
+        rope_angle_from_horizontal = -pi/2 + atan(radius_of_pivot_2 / distance_between_pivot_and_point)
+        length_of_pivot_1_string = sqrt(distance_between_pivot_and_point ** 2 + pivot_2.radius ** 2)
         target_point_on_second_pivot = pivot_1.pos + vector(cos(rope_angle_from_horizontal), sin(rope_angle_from_horizontal), 0) * length_of_pivot_1_string
         string_about_pivot_1.pos = (pivot_1.pos + target_point_on_second_pivot)/2
         string_about_pivot_1.axis = (target_point_on_second_pivot - pivot_1.pos)
 
 def update_string_about_pivot_2() -> None:
-    target_angle_from_pivot_2 = angle_to_pivot_2 + math.acos(pivot_2.radius / (pivot_2.pos - mass.pos).mag)
+    target_angle_from_pivot_2 = angle_to_pivot_2 + acos(pivot_2.radius / (pivot_2.pos - mass.pos).mag)
     start_pos = pivot_2.pos + vector(cos(target_angle_from_pivot_2), sin(target_angle_from_pivot_2), 0) * radius_of_pivot_2
     string_about_pivot_2.pos = (start_pos + mass.pos)/2
     if (is_mass_pivoting_about_pivot_1()):
