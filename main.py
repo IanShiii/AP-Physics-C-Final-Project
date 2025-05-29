@@ -143,11 +143,13 @@ def update_string_about_pivot_1() -> None:
         string_about_pivot_1.axis = (target_point_on_second_pivot - pivot_1.pos)
 
 def update_string_about_pivot_2() -> None:
-    string_about_pivot_2.pos = (pivot_2.pos + mass.pos)/2
+    target_angle_from_pivot_2 = angle_to_pivot_2 + math.acos(pivot_2.radius / (pivot_2.pos - mass.pos).mag)
+    start_pos = pivot_2.pos + vector(cos(target_angle_from_pivot_2), sin(target_angle_from_pivot_2), 0) * radius_of_pivot_2
+    string_about_pivot_2.pos = (start_pos + mass.pos)/2
     if (is_mass_pivoting_about_pivot_1()):
         string_about_pivot_2.axis = vector(0,0,0)
     else:
-        string_about_pivot_2.axis = (mass.pos - pivot_2.pos)
+        string_about_pivot_2.axis = (mass.pos - start_pos)
 
 def update_pivot_2() -> None:
     pivot_2.pos = pivot_1.pos-vector(0, distance_between_pivot_and_point, 0)
