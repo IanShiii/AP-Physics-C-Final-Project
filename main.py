@@ -22,6 +22,14 @@ angular_velocity_to_pivot_1 = 0
 angle_to_pivot_2 = -math.pi/2
 angular_velocity_to_pivot_2 = 0
 
+radius_of_pivot_2 = 0.05
+radius_of_mass = 0.05
+
+def set_radius_of_pivot_2(radius: float) -> None:
+    global radius_of_pivot_2
+    if (not simulation_started):
+        radius_of_pivot_2 = radius
+
 def set_starting_rope_length(length: float) -> None:
     global starting_rope_length
     if (not simulation_started):
@@ -48,6 +56,9 @@ starting_rope_length_slider_text = wtext(text='Rope Length: ' + str(starting_rop
 distance_between_pivot_and_point_slider = slider(bind=lambda : set_distance_between_pivot_and_point(distance_between_pivot_and_point_slider.value), max=2.0, min=0.5, step=0.05, value=1)
 distance_between_pivot_and_point_slider_text = wtext(text='Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n')
 
+radius_of_second_pivot_slider = slider(bind=lambda : set_radius_of_pivot_2(radius_of_second_pivot_slider.value), max=0.15, min=0.05, step=0.01, value=radius_of_pivot_2)
+radius_of_second_pivot_slider_text = wtext(text='Radius of Second Pivot\n')
+
 initial_angle_slider = slider(bind=lambda : set_initial_angle(initial_angle_slider.value), max=0, min=-math.pi/4, step=0.05, value=0)
 initial_angle_slider_text = wtext(text='Initial Angle\n')
 
@@ -57,11 +68,6 @@ initial_angular_velocity_slider_text = wtext(text='Initial Angular Velocity\n\n'
 def update_text():
     starting_rope_length_slider_text.text = 'Rope Length: ' + str(starting_rope_length_slider.value) + '\n'
     distance_between_pivot_and_point_slider_text.text = 'Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n'
-    initial_angle_slider_text.text = 'Initial Angle\n'
-    initial_angular_velocity_slider_text.text = 'Initial Angular Velocity\n\n'
-
-radius_of_pivot_2 = 0.05
-radius_of_mass = 0.05
 
 def find_position_of_mass_about_pivot_1() -> vector:
     pivot_1_to_mass = vector(cos(angle_to_pivot_1), sin(angle_to_pivot_1), 0) * starting_rope_length
@@ -137,6 +143,7 @@ def update_string_about_pivot_2() -> None:
 
 def update_pivot_2() -> None:
     pivot_2.pos = pivot_1.pos-vector(0, distance_between_pivot_and_point, 0)
+    pivot_2.radius = radius_of_pivot_2
 
 def get_minimum_magnitude_angular_velocity_required_to_keep_string_taut_top_half() -> float:
     global angle_to_pivot_1
