@@ -10,7 +10,7 @@ scene.userpan = False
 scene.autoscale = False
 scene.camera.pos = vector(0,0,-12)
 # Web vpython
-# scene.camera.pos = vector(0,0,-12) 
+# scene.camera.pos = vector(0,0,3) 
 
 simulation_started = False
 simulation_ended = False
