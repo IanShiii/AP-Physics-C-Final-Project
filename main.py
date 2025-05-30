@@ -3,12 +3,14 @@ from vpython import *
 dt = 0.003
 steps_per_second = 100
 
-scene = canvas(width=1000, height=500)
+scene = canvas(width=1000, height=400)
 scene.userzoom = False
 scene.userspin = False
 scene.userpan = False
 scene.autoscale = False
 scene.camera.pos = vector(0,0,-12)
+# Web vpython
+# scene.camera.pos = vector(0,0,-12) 
 
 simulation_started = False
 simulation_ended = False
@@ -24,57 +26,57 @@ angular_velocity_to_pivot_2 = 0
 radius_of_pivot_2 = 0.05
 radius_of_mass = 0.05
 
-def set_radius_of_pivot_2(radius: float) -> None:
+def set_radius_of_pivot_2(evt):
     global radius_of_pivot_2
     if (not simulation_started):
-        radius_of_pivot_2 = radius
+        radius_of_pivot_2 = evt.value
 
-def set_starting_rope_length(length: float) -> None:
+def set_starting_rope_length(evt):
     global starting_rope_length
     if (not simulation_started):
-        starting_rope_length = length
+        starting_rope_length = evt.value
 
-def set_distance_between_pivot_and_point(distance: float) -> None:
+def set_distance_between_pivot_and_point(evt):
     global distance_between_pivot_and_point
     if (not simulation_started):
-        distance_between_pivot_and_point = distance
+        distance_between_pivot_and_point = evt.value
 
-def set_initial_angle(angle: float) -> None:
+def set_initial_angle(evt):
     global angle_to_pivot_1
     if (not simulation_started):
-        angle_to_pivot_1 = angle
+        angle_to_pivot_1 = evt.value
 
-def set_initial_angular_velocity(angular_velocity: float) -> None:
+def set_initial_angular_velocity(evt):
     global angular_velocity_to_pivot_1
     if (not simulation_started):
-        angular_velocity_to_pivot_1 = angular_velocity
+        angular_velocity_to_pivot_1 = -evt.value
 
 spacing = wtext(text='\n')
 
-starting_rope_length_slider = slider(bind=lambda : set_starting_rope_length(starting_rope_length_slider.value), max=2, min=0.5, step=0.05, value=1.5)
+starting_rope_length_slider = slider(bind=set_starting_rope_length, max=2, min=0.5, step=0.05, value=1.5)
 starting_rope_length_slider_text = wtext(text='Rope Length: ' + str(starting_rope_length_slider.value) + '\n')
 
-distance_between_pivot_and_point_slider = slider(bind=lambda : set_distance_between_pivot_and_point(distance_between_pivot_and_point_slider.value), max=2.0, min=0.5, step=0.05, value=1)
+distance_between_pivot_and_point_slider = slider(bind=set_distance_between_pivot_and_point, max=2.0, min=0.5, step=0.05, value=1)
 distance_between_pivot_and_point_slider_text = wtext(text='Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n')
 
-radius_of_second_pivot_slider = slider(bind=lambda : set_radius_of_pivot_2(radius_of_second_pivot_slider.value), max=0.15, min=0.05, step=0.01, value=radius_of_pivot_2)
+radius_of_second_pivot_slider = slider(bind=set_radius_of_pivot_2, max=0.15, min=0.05, step=0.01, value=radius_of_pivot_2)
 radius_of_second_pivot_slider_text = wtext(text='Radius of Second Pivot\n')
 
-initial_angle_slider = slider(bind=lambda : set_initial_angle(initial_angle_slider.value), max=0, min=-pi/4, step=0.05, value=0)
+initial_angle_slider = slider(bind=set_initial_angle, max=0, min=-pi/4, step=0.05, value=0)
 initial_angle_slider_text = wtext(text='Initial Angle\n')
 
-initial_angular_velocity_slider = slider(bind=lambda : set_initial_angular_velocity(-initial_angular_velocity_slider.value), max=3, min=0, step=0.01, value=0)
+initial_angular_velocity_slider = slider(bind=set_initial_angular_velocity, max=3, min=0, step=0.01, value=0)
 initial_angular_velocity_slider_text = wtext(text='Initial Angular Velocity\n\n')
 
 def update_text():
     starting_rope_length_slider_text.text = 'Rope Length: ' + str(starting_rope_length_slider.value) + '\n'
     distance_between_pivot_and_point_slider_text.text = 'Distance Between Two Pivots: ' + str(distance_between_pivot_and_point_slider.value) + '\n'
 
-def find_position_of_mass_about_pivot_1() -> vector:
+def find_position_of_mass_about_pivot_1():
     pivot_1_to_mass = vector(cos(angle_to_pivot_1), sin(angle_to_pivot_1), 0) * starting_rope_length
     return pivot_1.pos + pivot_1_to_mass
 
-def find_position_of_mass_about_pivot_2(effective_rope_length: float) -> vector:
+def find_position_of_mass_about_pivot_2(effective_rope_length: float):
     pivot_2_to_mass = vector(cos(angle_to_pivot_2), sin(angle_to_pivot_2), 0) * effective_rope_length
     return pivot_2.pos + pivot_2_to_mass
 
@@ -92,10 +94,10 @@ def convert_pivot_1_angular_velocity_to_pivot_2_angular_velocity():
     global angular_velocity_to_pivot_2
     angular_velocity_to_pivot_2 = angular_velocity_to_pivot_1 * starting_rope_length / (starting_rope_length - distance_between_pivot_and_point)
 
-def is_mass_pivoting_about_pivot_1() -> bool:
+def is_mass_pivoting_about_pivot_1():
     return angle_to_pivot_1 > (-pi/2 + atan(radius_of_pivot_2 / distance_between_pivot_and_point))
 
-def get_effective_rope_length() -> float:
+def get_effective_rope_length():
     if (is_mass_pivoting_about_pivot_1()):
         return starting_rope_length
     else:
@@ -103,7 +105,7 @@ def get_effective_rope_length() -> float:
         rotations_around_point = abs((angle_to_pivot_2 + pi/2) / (2 * pi))
         return starting_rope_length - (circumference_of_point * rotations_around_point) - distance_between_pivot_and_point
     
-def update_mass_angular_velocity() -> None:
+def update_mass_angular_velocity():
     global angle_to_pivot_1
     global angular_velocity_to_pivot_1
     global angle_to_pivot_2
@@ -115,7 +117,7 @@ def update_mass_angular_velocity() -> None:
         alpha = -9.81 * cos(angle_to_pivot_2) / get_effective_rope_length()
         angular_velocity_to_pivot_2 += (alpha * dt)
     
-def update_mass_angle() -> None:
+def update_mass_angle():
     global angle_to_pivot_1
     global angle_to_pivot_2
     global angular_velocity_to_pivot_2
@@ -135,13 +137,13 @@ def update_mass_angle() -> None:
         angular_velocity_to_pivot_2 = new_linear_velocity / new_radius
         
 
-def update_mass_position() -> None:
+def update_mass_position():
     if (is_mass_pivoting_about_pivot_1()):
         mass.pos = find_position_of_mass_about_pivot_1()
     else:
         mass.pos = find_position_of_mass_about_pivot_2(effective_rope_length=get_effective_rope_length())
 
-def update_string_about_pivot_1() -> None:
+def update_string_about_pivot_1():
     if (is_mass_pivoting_about_pivot_1()):
         string_about_pivot_1.pos = (pivot_1.pos + mass.pos)/2
         string_about_pivot_1.axis = (mass.pos - pivot_1.pos)
@@ -152,7 +154,7 @@ def update_string_about_pivot_1() -> None:
         string_about_pivot_1.pos = (pivot_1.pos + target_point_on_second_pivot)/2
         string_about_pivot_1.axis = (target_point_on_second_pivot - pivot_1.pos)
 
-def update_string_about_pivot_2() -> None:
+def update_string_about_pivot_2():
     target_angle_from_pivot_2 = angle_to_pivot_2 + acos(pivot_2.radius / (pivot_2.pos - mass.pos).mag)
     start_pos = pivot_2.pos + vector(cos(target_angle_from_pivot_2), sin(target_angle_from_pivot_2), 0) * radius_of_pivot_2
     string_about_pivot_2.pos = (start_pos + mass.pos)/2
@@ -161,11 +163,11 @@ def update_string_about_pivot_2() -> None:
     else:
         string_about_pivot_2.axis = (mass.pos - start_pos)
 
-def update_pivot_2() -> None:
+def update_pivot_2():
     pivot_2.pos = pivot_1.pos-vector(0, distance_between_pivot_and_point, 0)
     pivot_2.radius = radius_of_pivot_2
 
-def get_minimum_magnitude_angular_velocity_required_to_keep_string_taut_top_half() -> float:
+def get_minimum_magnitude_angular_velocity_required_to_keep_string_taut_top_half():
     global angle_to_pivot_1
     global angle_to_pivot_2
     if (is_mass_pivoting_about_pivot_1()):
@@ -179,7 +181,7 @@ def get_minimum_magnitude_angular_velocity_required_to_keep_string_taut_top_half
         minimum_angular_velocity = minimum_linear_velocity / get_effective_rope_length()
         return minimum_angular_velocity
 
-def is_rope_taut() -> bool:
+def is_rope_taut():
     if (is_mass_pivoting_about_pivot_1()):
         if (sin(angle_to_pivot_1) <=0):
             return True
@@ -191,13 +193,13 @@ def is_rope_taut() -> bool:
         else:
             return abs(angular_velocity_to_pivot_2) >= get_minimum_magnitude_angular_velocity_required_to_keep_string_taut_top_half()
 
-def hide_strings() -> None:
+def hide_strings():
     string_about_pivot_1.axis = vector(0,0,0)
     string_about_pivot_2.axis = vector(0,0,0)
 
 mass_linear_velocity = vector(0,0,0)
 
-def convert_mass_angular_velocity_to_linear_velocity() -> None:
+def convert_mass_angular_velocity_to_linear_velocity():
     global mass_linear_velocity
     if (is_mass_pivoting_about_pivot_1()):
         ccw_velocity_magnitude = angular_velocity_to_pivot_1 * starting_rope_length
@@ -206,17 +208,17 @@ def convert_mass_angular_velocity_to_linear_velocity() -> None:
         ccw_velocity_magnitude = angular_velocity_to_pivot_2 * get_effective_rope_length()
         mass_linear_velocity = vector(ccw_velocity_magnitude * -sin(angle_to_pivot_2), ccw_velocity_magnitude * cos(angle_to_pivot_2), 0)
 
-def update_mass_velocity_free_fall() -> None:
+def update_mass_velocity_free_fall():
     mass_linear_velocity.y -= (9.81 * dt)
 
-def update_mass_position_free_fall() -> None:
+def update_mass_position_free_fall():
     mass.pos += (mass_linear_velocity * dt)
 
 rope_has_become_slack = False
 last_effective_rope_length_before_going_slack = 0
 mass_was_last_pivoting_around_pivot_1 = True
 
-def has_mass_reached_end_of_string() -> bool:
+def has_mass_reached_end_of_string():
     if (mass_was_last_pivoting_around_pivot_1):
         distance_to_pivot_1 = (mass.pos - pivot_1.pos).mag
         return distance_to_pivot_1 > last_effective_rope_length_before_going_slack * 1
@@ -224,12 +226,12 @@ def has_mass_reached_end_of_string() -> bool:
         distance_to_pivot_2 = (mass.pos - pivot_2.pos).mag
         return distance_to_pivot_2 > last_effective_rope_length_before_going_slack * 1
     
-def is_mass_touching_pivot_2() -> bool:
+def is_mass_touching_pivot_2():
     return (mass.pos - pivot_2.pos).mag <= (radius_of_mass + radius_of_pivot_2)
 
 rope_is_too_short_error = wtext(text='\n')
 
-def attempt_start_simulation() -> None:
+def attempt_start_simulation(evt):
     global simulation_started
     if (starting_rope_length <= distance_between_pivot_and_point):
         rope_is_too_short_error.text = 'ROPE IS TOO SHORT (Must be longer than the distance between the two pivots)\n'
@@ -237,9 +239,9 @@ def attempt_start_simulation() -> None:
         simulation_started = True
         rope_is_too_short_error.text = '\n'
 
-start_button = button(bind=lambda : attempt_start_simulation(), text='Start Simulation')
+start_button = button(bind=attempt_start_simulation, text='Start Simulation')
 
-def reset() -> None:
+def reset(evt):
     global simulation_started, simulation_ended
     global angle_to_pivot_1, angular_velocity_to_pivot_1, angle_to_pivot_2, angular_velocity_to_pivot_2
     global mass_linear_velocity
@@ -265,7 +267,7 @@ def reset() -> None:
 
     rope_is_too_short_error.text = '\n'
 
-reset_button = button(bind=lambda : reset(), text='Reset Simulation')
+reset_button = button(bind=reset, text='Reset Simulation')
 
 while True:
     rate(steps_per_second)
