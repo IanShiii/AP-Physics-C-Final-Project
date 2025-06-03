@@ -1,6 +1,7 @@
 from vpython import *
 
 dt = 0.003
+time = 0
 steps_per_second = 100
 
 scene = canvas(width=1000, height=400)
@@ -241,16 +242,24 @@ def attempt_start_simulation(evt):
 
 start_button = button(bind=attempt_start_simulation, text='Start Simulation')
 
+graph = graph(title='Angular Velocity', xtitle='time', ytitle='Angular Velocity', xmin=0)
+angular_velocity_curve = gcurve(graph=graph, color=color.red, label='Angular Velocity')
+
 def reset(evt):
     global simulation_started, simulation_ended
+    global time
     global angle_to_pivot_1, angular_velocity_to_pivot_1, angle_to_pivot_2, angular_velocity_to_pivot_2
     global mass_linear_velocity
     global rope_has_become_slack, last_effective_rope_length_before_going_slack
     global mass_was_last_pivoting_around_pivot_1
     global rope_is_too_short_error
+    global radius_of_pivot_2
+    global angular_velocity_curve
 
     simulation_started = False
     simulation_ended = False
+
+    time = 0
 
     angle_to_pivot_1 = initial_angle_slider.value
     angular_velocity_to_pivot_1 = -initial_angular_velocity_slider.value
@@ -266,6 +275,8 @@ def reset(evt):
     mass_was_last_pivoting_around_pivot_1 = True
 
     rope_is_too_short_error.text = '\n'
+
+    angular_velocity_curve.delete()
 
 reset_button = button(bind=reset, text='Reset Simulation')
 
@@ -288,6 +299,12 @@ while True:
                 convert_mass_angular_velocity_to_linear_velocity()
             elif (is_mass_touching_pivot_2()):
                 simulation_ended = True
+
+            time += dt
+            if (is_mass_pivoting_about_pivot_1()):
+                angular_velocity_curve.plot(time, angular_velocity_to_pivot_1)
+            else:
+                angular_velocity_curve.plot(time, angular_velocity_to_pivot_2)
         else:
             update_mass_velocity_free_fall()
             update_mass_position_free_fall()
