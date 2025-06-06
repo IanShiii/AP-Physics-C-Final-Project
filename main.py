@@ -1,4 +1,5 @@
 from vpython import *
+#Web VPython 3.2
 
 dt = 0.003
 time = 0
@@ -9,8 +10,7 @@ scene.userzoom = False
 scene.userspin = False
 scene.userpan = False
 scene.autoscale = False
-scene.camera.pos = vector(0,0,-12)
-# Web vpython
+scene.camera.pos = vector(0,0,-12) 
 # scene.camera.pos = vector(0,0,3) 
 
 simulation_started = False
@@ -242,8 +242,11 @@ def attempt_start_simulation(evt):
 
 start_button = button(bind=attempt_start_simulation, text='Start Simulation')
 
-graph = graph(title='Angular Velocity', xtitle='time', ytitle='Angular Velocity', xmin=0)
-angular_velocity_curve = gcurve(graph=graph, color=color.red, label='Angular Velocity')
+pivot_1_angular_velocity_graph = graph(title='Angular Velocity (about the top pivot)', xtitle='time', ytitle='Angular Velocity', xmin=0)
+pivot_1_angular_velocity_curve = gcurve(graph=pivot_1_angular_velocity_graph, color=color.red, label='Angular Velocity')
+
+pivot_2_angular_velocity_graph = graph(title='Angular Velocity (about the bottom pivot)', xtitle='time', ytitle='Angular Velocity', xmin=0)
+pivot_2_angular_velocity_curve = gcurve(graph=pivot_2_angular_velocity_graph, color=color.red, label='Angular Velocity')
 
 def reset(evt):
     global simulation_started, simulation_ended
@@ -276,7 +279,8 @@ def reset(evt):
 
     rope_is_too_short_error.text = '\n'
 
-    angular_velocity_curve.delete()
+    pivot_1_angular_velocity_graph.delete()
+    pivot_2_angular_velocity_graph.delete()
 
 reset_button = button(bind=reset, text='Reset Simulation')
 
@@ -302,9 +306,9 @@ while True:
 
             time += dt
             if (is_mass_pivoting_about_pivot_1()):
-                angular_velocity_curve.plot(time, angular_velocity_to_pivot_1)
+                pivot_1_angular_velocity_curve.plot(time, angular_velocity_to_pivot_1)
             else:
-                angular_velocity_curve.plot(time, angular_velocity_to_pivot_2)
+                pivot_2_angular_velocity_curve.plot(time, angular_velocity_to_pivot_2)
         else:
             update_mass_velocity_free_fall()
             update_mass_position_free_fall()
