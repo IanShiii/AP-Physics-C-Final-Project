@@ -1,7 +1,7 @@
 from vpython import *
 #Web VPython 3.2
 
-dt = 0.003
+dt = 0.005
 time = 0
 steps_per_second = 100
 
@@ -135,7 +135,7 @@ def update_mass_angle():
 
         new_radius = get_effective_rope_length()
         new_linear_velocity = initial_radius * initial_linear_velocity / new_radius
-        angular_velocity_to_pivot_2 = new_linear_velocity / new_radius
+        angular_velocity_to_pivot_2 = (new_linear_velocity + initial_linear_velocity) / 2 / new_radius
         
 
 def update_mass_position():
