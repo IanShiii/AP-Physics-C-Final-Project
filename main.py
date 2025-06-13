@@ -284,6 +284,21 @@ def reset(evt):
 
 reset_button = button(bind=reset, text='Reset Simulation')
 
+def disable_enable_sliders():
+    if (simulation_started):
+        starting_rope_length_slider.disabled = True
+        distance_between_pivot_and_point_slider.disabled = True
+        radius_of_second_pivot_slider.disabled = True
+        initial_angle_slider.disabled = True
+        initial_angular_velocity_slider.disabled = True
+    else:
+        starting_rope_length_slider.disabled = False
+        distance_between_pivot_and_point_slider.disabled = False
+        radius_of_second_pivot_slider.disabled = False
+        initial_angle_slider.disabled = False
+        initial_angular_velocity_slider.disabled = False
+        
+
 while True:
     rate(steps_per_second)
     update_text()
